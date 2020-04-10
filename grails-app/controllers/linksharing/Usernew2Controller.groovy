@@ -2,6 +2,8 @@ package linksharing
 
 class Usernew2Controller {
     UserService userService
+    ResourceService resourceService
+    SubscriptionService subscriptionService
 
     def logout() {
         session.invalidate()
@@ -16,11 +18,8 @@ class Usernew2Controller {
     }
 
     def userDetails() {
-        User user=User.get(session.user)
-        def users = User.list()
-        List<Topic> topic=Topic.findAllByCreatedBy(user)
-        def subscribed = Subscription.findAllByUser(user)
-        render(view:"/usernew2/systemUsers",model: [users:users,topic:topic,list:subscribed])
+        User user=userService.getUser(session)
+        render(view:"/usernew2/systemUsers",model: [users:userService.getAllUsers(),list:subscriptionService.userSubscriptions(session)])
     }
     def addUser() {
         boolean userCreated= userService.newUser(params,flash)
@@ -35,8 +34,8 @@ class Usernew2Controller {
         if(session.name) {
             User users = User.findByUsername(session.name)
             List unreadResorces=ReadingItem.findAllByIsReadAndUser(false,users)
-            List allLinkResources=LinkResource.list()
-            def subscribed = Subscription.findAllByUser(users)
+            List allLinkResources=resourceService.getLinkResources()
+            def subscribed =subscriptionService.userSubscriptions(session)
             render(view: '/usernew2/dashboard',model: [list:subscribed,user:users,trendingTopics:userService.getTrendingTopics(),unreadResources:unreadResorces,allLinkResources:allLinkResources])
         }
         else

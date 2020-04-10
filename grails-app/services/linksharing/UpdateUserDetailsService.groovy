@@ -5,12 +5,12 @@ import grails.gorm.transactions.Transactional
 @Transactional
 class UpdateUserDetailsService {
 
-   boolean updatePassword(params,session){
-       User userFind=User.get(session.user)
-       userFind.password=params.password1
-       userFind.save(flush:true,failOnError:true)
-       return true
-   }
+    boolean updatePassword(params,session){
+        User userFind=User.get(session.user)
+        userFind.password=params.password1
+        userFind.save(flush:true,failOnError:true)
+        return true
+    }
 
     boolean updateInfo(params,session,flash){
         User userFind=User.get(session.user)
@@ -61,11 +61,12 @@ class UpdateUserDetailsService {
     boolean passwordForgot(params,flash){
         User user=User.findByEmail(params.address)
         if(user) {
-            def a= new Random()
-            def b= a.toString().split("@")
-            def info = "New password is \"${b[1]}\""
+            UUID uid = UUID.fromString("3840000-8cf-1bd-b23e-10b6ef00d");
+            def a= uid.randomUUID()
+            def b= a.toString().split("-")
+            def info = "New password is \"${b[4]}\""
             def s = "New password requested"
-            user.password=b[1]
+            user.password=b[4]
             user.save(flush:true,failOnError:true)
             sendMail {
                 to params.address

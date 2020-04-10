@@ -15,6 +15,8 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     <script src="https://kit.fontawesome.com/75886237ee.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.js"></script>
 
 </head>
 <body>
@@ -59,7 +61,12 @@
             <div class="panel-heading text">
                 <b>Topics</b>
             </div>
+            <br>
+            <table class="table useDataTable">
+                <thead><tr><th></th></tr></thead><tbody>
             <g:each in="${publicUserTopics}" var="a">
+                <tr>
+             <td>
                 <div class="panel-body">
                     <div class="col-xs-6">
                         <div>
@@ -90,12 +97,15 @@
                         <div>${a?.resources?.size()}</div>
                     </div>
                 </div>
+             </td></tr>
             </g:each>
 
             <g:each in="${privateUserTopics}" var="b">
                 <g:if test="${b?.subscriptions?.user?.id?.contains(session.user) || session.role}">
-                    <div class="panel-body">
-                        <div class="col-xs-6">
+                    <tr>
+          <td>
+                 <div class="panel-body">
+                     <div class="col-xs-6">
                             <g:link controller="topics" action="topicsShow" params="[topicShowId:b?.id]">${b?.name}</g:link>
                             <div>
                                 <g:if test="${session.role || b?.createdBy?.id==session.user}">
@@ -124,9 +134,10 @@
                             <div>${b?.resources?.size()}</div>
                         </div>
                     </div>
+          </td></tr>
                 </g:if>
             </g:each>
-
+            </tbody></table>
 
         </div>
 
@@ -226,5 +237,6 @@
 </script>
 <asset:javascript src="changeSeriousness.js"/>
 <asset:javascript src="changeVisibility.js"/>
+<asset:javascript src="table.js"/>
 </body>
 </html>

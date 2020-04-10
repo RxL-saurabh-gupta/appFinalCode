@@ -186,9 +186,37 @@ boolean createTopic(params,session,flash){
             flash.nameChanged="Choose different name please"
         return true
     }
-    List userSubscriptions(session){
-        User user=User.get(session.user)
-        List subscriptions=Subscription.findAllByUser(user)
-        return subscriptions
+
+    Topic getTopic(params){
+        return Topic.get(params.topicShowId)
     }
+
+    List<Topic> getAllTopics(){
+        List allSystemTopics=Topic.createCriteria().list {
+            order("name")
+        }
+        return allSystemTopics
+    }
+    List<Topic> getPublicTopics(User user){
+        List publicUserTopics=Topic.findAllByCreatedByAndVisibility(user,"PUBLIC")
+        return publicUserTopics
+    }
+    List<Topic> getPrivateTopics(User user){
+        List privateUserTopics=Topic.findAllByCreatedByAndVisibility(user,"PRIVATE")
+        return privateUserTopics
+    }
+
+
+    ResourceRating getResourceRating(User user,Resource resource){
+        ResourceRating.findByUserAndResource(user,resource)
+    }
+    List<Topic> getTopicByNameLike(String name){
+        return Topic?.findAllByVisibilityAndNameIlike("PUBLIC",name)
+    }
+
+    List<Topic> allPublicTopics(){
+        List l=Topic?.findAllByVisibility("PUBLIC")
+        return l
+    }
+
 }

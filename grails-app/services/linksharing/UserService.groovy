@@ -57,7 +57,7 @@ List getLatestPublicTopics(){
                 }
             }
         }
-        if(user!=null&&user.active){
+        if(user && user.active){
 
                 session.user=user.id
                 session.name = user.username
@@ -117,6 +117,14 @@ List getLatestPublicTopics(){
             return false
         }
     }
+    User getUser(session){
+        User user=User.get(session.user)
+        return user
+    }
+    List getAllUsers(){
+        return User.list()
+    }
+
 
 
 }

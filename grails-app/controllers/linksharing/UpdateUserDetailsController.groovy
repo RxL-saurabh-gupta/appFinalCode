@@ -6,14 +6,15 @@ class UpdateUserDetailsController {
     UpdateUserDetailsService updateUserDetailsService
     TopicsService topicsService
     UserService userService
+    ResourceService resourceService
+    SubscriptionService subscriptionService
 
     def index() {
-        User user=User.get(session.user)
-        List<Topic> topic=Topic.findAllByCreatedBy(user)
-        def subscribed = Subscription.findAllByUser(user)
-        List publicUserTopics=Topic.findAllByCreatedByAndVisibility(user,"PUBLIC")
-        List privateUserTopics=Topic.findAllByCreatedByAndVisibility(user,"PRIVATE")
-        render(view:"/updateUserDetails/editprofile",model: [topic:topic,list:subscribed,userprofile:user,publicUserTopics:publicUserTopics,privateUserTopics:privateUserTopics])
+        User user=userService.getUser(session)
+        List<Subscription> subscribed = subscriptionService.userSubscriptions(session)
+        List<Topic> publicUserTopics=topicsService.getPublicTopics(user)
+        List<Topic> privateUserTopics=topicsService.getPrivateTopics(user)
+        render(view:"/updateUserDetails/editprofile",model: [list:subscribed,userprofile:user,publicUserTopics:publicUserTopics,privateUserTopics:privateUserTopics])
     }
 
     def updateUserPassword() {
@@ -32,13 +33,12 @@ class UpdateUserDetailsController {
     }
 
     def showPost(){
-        Resource resource=Resource.get(params.resourceId)
-        User users=User.get(session.user)
-        ResourceRating resourceRating=ResourceRating.findByUserAndResource(users,resource)
-        List allLinkResources=LinkResource.list()
-        List<Topic> topic=Topic.findAllByCreatedBy(users)
-        def subscribed = Subscription.findAllByUser(users)
-        render(view: "/updateUserDetails/posts",model: [trendingTopics:userService.getTrendingTopics(),postResource:resource,allLinkResources:allLinkResources,topic:topic,list:subscribed,resourceRating:resourceRating])
+        Resource resource=resourceService.getResource(params)
+        User users=userService.getUser(session)
+        ResourceRating resourceRating=topicsService.getResourceRating(users,resource)
+        List<LinkResource> allLinkResources=resourceService.getLinkResources()
+        List<Subscription> subscribed = subscriptionService.userSubscriptions(session)
+        render(view: "/updateUserDetails/posts",model: [trendingTopics:userService.getTrendingTopics(),postResource:resource,allLinkResources:allLinkResources,list:subscribed,resourceRating:resourceRating])
     }
     def deletePost(){
         updateUserDetailsService.postDeletion(params)
@@ -50,12 +50,11 @@ class UpdateUserDetailsController {
     }
     def showUserProfile(){
         User users=User.get(params.userId)
-        List<Topic> topic=Topic.findAllByCreatedBy(users)
-        def subscribed = Subscription.findAllByUser(users)
-        List allLinkResources=LinkResource.list()
-        List publicUserTopics=Topic.findAllByCreatedByAndVisibility(users,"PUBLIC")
-        List privateUserTopics=Topic.findAllByCreatedByAndVisibility(users,"PRIVATE")
-        render(view: "/usernew2/userprofile",model: [topic:topic,list:subscribed,userprofile:users,publicUserTopics:publicUserTopics,privateUserTopics:privateUserTopics,allUnreadResources:topicsService.getUnreadResources(users),allReadResources:topicsService.getReadResources(users),allLinkResources:allLinkResources])
+        List<Subscription> subscribed = subscriptionService.userSubscriptions(session)
+        List<LinkResource> allLinkResources=resourceService.getLinkResources()
+        List<Topic> publicUserTopics=topicsService.getPublicTopics(users)
+        List<Topic> privateUserTopics=topicsService.getPrivateTopics(users)
+        render(view: "/usernew2/userprofile",model: [list:subscribed,userprofile:users,publicUserTopics:publicUserTopics,privateUserTopics:privateUserTopics,allUnreadResources:topicsService.getUnreadResources(users),allReadResources:topicsService.getReadResources(users),allLinkResources:allLinkResources])
     }
     def changeRating(){
         updateUserDetailsService.postRatingChange(params,session)
@@ -66,32 +65,19 @@ class UpdateUserDetailsController {
         String name1=params.content
         String name="%"+name1+"%"
         println name
-        User user=User.get(session.user)
-        List<Topic> topic=Topic.findAllByCreatedBy(user)
-        def subscribed = Subscription.findAllByUser(user)
-        List PublicTopics = Topic?.findAllByVisibilityAndNameIlike("PUBLIC",name)
-        List l=Topic?.findAllByVisibility("PUBLIC")
-        if(PublicTopics.isEmpty()){
-            List lresourceName=LinkResource.createCriteria().list {
-                ilike("description",name)
-                inList("topic",l)
-
-            }
-            List dresourceName=DocumentResource.createCriteria().list {
-                ilike("description",name)
-                inList("topic",l)
-
-            }
-            render(view: "/updateUserDetails/search",model: [listLR:lresourceName,listDR:dresourceName,topic:topic,list:subscribed, allUnreadResources:topicsService.getUnreadResources(user),allReadResources:topicsService.getReadResources(user),topPosts:userService.getTopPosts(),trendingTopics:userService.getTrendingTopics()])
+        User user=userService.getUser(session)
+        List<Subscription> subscribed = subscriptionService.userSubscriptions(session)
+        List<Topic> publicTopics = topicsService.getTopicByNameLike(name)
+        List<Topic> l=topicsService.allPublicTopics()
+        if(publicTopics.isEmpty()){
+            List<Topic> lresourceName=resourceService.getMatchingLR(name,l)
+            List<Topic> dresourceName=resourceService.getMatchingDR(name,l)
+            render(view: "/updateUserDetails/search",model: [listLR:lresourceName,listDR:dresourceName,list:subscribed, allUnreadResources:topicsService.getUnreadResources(user),allReadResources:topicsService.getReadResources(user),topPosts:userService.getTopPosts(),trendingTopics:userService.getTrendingTopics()])
         }
         else{
-            List lresourceName=LinkResource.createCriteria().list {
-                inList("topic",PublicTopics)
-            }
-            List dresourceName=DocumentResource.createCriteria().list {
-                inList("topic",PublicTopics)
-            }
-            render(view: "/updateUserDetails/search",model: [listLR:lresourceName,listDR:dresourceName,topic:topic,list:subscribed, allUnreadResources:topicsService.getUnreadResources(user),allReadResources:topicsService.getReadResources(user),topPosts:userService.getTopPosts(),trendingTopics:userService.getTrendingTopics()])
+            List lresourceName=resourceService.getPublicLR(publicTopics)
+            List dresourceName=resourceService.getPublicDR(publicTopics)
+            render(view: "/updateUserDetails/search",model: [listLR:lresourceName,listDR:dresourceName,list:subscribed, allUnreadResources:topicsService.getUnreadResources(user),allReadResources:topicsService.getReadResources(user),topPosts:userService.getTopPosts(),trendingTopics:userService.getTrendingTopics()])
         }
     }
 
@@ -100,10 +86,10 @@ class UpdateUserDetailsController {
         redirect(controller: "usernew2",action: "index")
     }
     def allSystemPosts(){
-        User user=User.get(session.user)
-        def subscribed = Subscription.findAllByUser(user)
-        List lr=LinkResource.list()
-        List dr=DocumentResource.list()
+        User user=userService.getUser(session)
+        def subscribed = subscriptionService.userSubscriptions(session)
+        List lr=resourceService.getLinkResources()
+        List dr=resourceService.getDocumentResources()
 render(view: "allPosts",model: [list:subscribed,listLR:lr,listDR:dr,allUnreadResources:topicsService.getUnreadResources(user),allReadResources:topicsService.getReadResources(user)])
     }
     def changeDescription(){

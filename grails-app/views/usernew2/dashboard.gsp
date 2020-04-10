@@ -106,11 +106,8 @@
                     <div id="errorsHere"></div>
                 </div>
                 <br>
-                <table class="table" id="subscriptionsTable">
-                    <thead><tr><th></th></tr></thead><tbody>
                         <g:each in="${list}" var="${t}">
-                            <tr>
-                                <td>
+
                                     <div class="panel-body helping">
                                         <div class="row">
                                             <div class="col-xs-2">
@@ -194,11 +191,7 @@
                                         </g:if>
                                     </div>
                                     <br>
-                                </td>
-                            </tr>
                         </g:each>
-                </tbody>
-                </table>
             </div>
         <g:render template="trendingTopics"/>
             </div>

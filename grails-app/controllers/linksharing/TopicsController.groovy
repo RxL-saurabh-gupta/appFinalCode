@@ -8,6 +8,8 @@ import org.springframework.web.multipart.MultipartFile
 class TopicsController {
     UserService userService
     TopicsService topicsService
+    ResourceService resourceService
+    SubscriptionService subscriptionService
     def index() {
     }
 
@@ -30,12 +32,12 @@ class TopicsController {
     }
 
     def topicsShow(){
-        Topic topics= Topic.get(params.topicShowId)
-        User user=User.get(session.user)
-        List lr=LinkResource.findAllByTopic(topics)
-        List dr=DocumentResource.findAllByTopic(topics)
+        Topic topics= topicsService.getTopic(params)
+        User user=userService.getUser(session)
+        List lr=resourceService.getTopicLR(topics)
+        List dr=resourceService.getTopicDR(topics)
         Subscription subs=Subscription.findByTopicAndUser(topics,user)
-        def subscribed = Subscription.findAllByUser(user)
+        List<Subscription> subscribed = subscriptionService.userSubscriptions(session)
         render(view: "/usernew2/topicshow", model: [topics:topics,listLR:lr,listDR:dr,subs:subs,allUnreadResources:topicsService.getUnreadResources(user),allReadResources:topicsService.getReadResources(user),list:subscribed])
     }
 
@@ -96,16 +98,12 @@ class TopicsController {
         redirect(controller: "usernew2", action: "goToDash")
     }
     def allTopicsAdmin(){
-        User user=User.get(session.user)
-        List<Topic> topic=Topic.findAllByCreatedBy(user)
-        def subscribed = Subscription.findAllByUser(user)
-        List allSystemTopics=Topic.createCriteria().list {
-            order("name")
-        }
-        render(view: "allTopics",model: [topic:topic,list:subscribed,allSystemTopics:allSystemTopics])
+        List<Subscription> subscribed = subscriptionService.userSubscriptions(session)
+        List allSystemTopics=topicsService.getAllTopics()
+        render(view: "allTopics",model: [list:subscribed,allSystemTopics:allSystemTopics])
     }
     def allUserSubscriptions(){
-        List subscribed=topicsService.userSubscriptions(session)
+        List subscribed=subscriptionService.userSubscriptions(session)
         render(view: "/topics/allSubscriptions",model: [list: subscribed])
 
     }
