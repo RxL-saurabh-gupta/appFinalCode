@@ -166,11 +166,12 @@
 %{--                        </g:link>--}%
                     </div>
                 </div>
+                <div id="errorsHere"></div>
             </div>
             <br>
             <table class="table useDataTable">
                 <thead><tr><th></th></tr></thead><tbody>
-            <g:each in="${list}" var="${t}">
+            <g:each in="${list1}" var="${t}">
                 <g:if test="${t?.topic?.subscriptions?.user?.id?.contains(session.user) || t?.topic?.visibility?.name()?.equals("PUBLIC") || session.role}">
                     <tr>
                 <td>

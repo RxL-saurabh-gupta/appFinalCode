@@ -10,5 +10,8 @@ class SubscriptionService {
         List subscriptions=Subscription.findAllByUser(user)
         return subscriptions
     }
-
+    List userSubscribers(User user){
+        List subscribers=Subscription.findAllByUser(user)
+        return subscribers
+    }
 }

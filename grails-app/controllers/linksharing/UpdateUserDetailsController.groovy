@@ -51,10 +51,11 @@ class UpdateUserDetailsController {
     def showUserProfile(){
         User users=User.get(params.userId)
         List<Subscription> subscribed = subscriptionService.userSubscriptions(session)
+        List<Subscription> subscription=subscriptionService.userSubscribers(users)
         List<LinkResource> allLinkResources=resourceService.getLinkResources()
         List<Topic> publicUserTopics=topicsService.getPublicTopics(users)
         List<Topic> privateUserTopics=topicsService.getPrivateTopics(users)
-        render(view: "/usernew2/userprofile",model: [list:subscribed,userprofile:users,publicUserTopics:publicUserTopics,privateUserTopics:privateUserTopics,allUnreadResources:topicsService.getUnreadResources(users),allReadResources:topicsService.getReadResources(users),allLinkResources:allLinkResources])
+        render(view: "/usernew2/userprofile",model: [list:subscribed,list1:subscription, userprofile:users,publicUserTopics:publicUserTopics,privateUserTopics:privateUserTopics,allUnreadResources:topicsService.getUnreadResources(users),allReadResources:topicsService.getReadResources(users),allLinkResources:allLinkResources])
     }
     def changeRating(){
         updateUserDetailsService.postRatingChange(params,session)

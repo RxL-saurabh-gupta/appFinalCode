@@ -15,6 +15,8 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     <script src="https://kit.fontawesome.com/75886237ee.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rateYo/2.3.2/jquery.rateyo.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/rateYo/2.3.2/jquery.rateyo.min.js"></script>
 <style>
     .panel-default{
         border-width: 2px;
@@ -63,9 +65,10 @@
 %{--                                <option value="4">4</option>--}%
 %{--                                <option value="5">5</option>--}%
 %{--                            </select>--}%
-                            <g:select name="rating" from="${1..5}" value="${resourceRating?.score}" class="form-control ratingChange" noSelection="['':'-Rate it-']"></g:select>
-
+%{--                            <g:select name="rating" from="${1..5}" value="${resourceRating?.score}" class="form-control ratingChange" noSelection="['':'-Rate it-']"></g:select>--}%
+                            <input type="hidden" name="random" id="presentRating" value="${resourceRating?.score}"/>
                             <input type="hidden" value="${postResource?.id}" id="resourceId">
+                            <div id="rateYo"></div>
 
                         </div>
                         </g:if>
@@ -132,8 +135,9 @@
 
 </div>
 
-<asset:javascript src="changeRating.js"/>
+%{--<asset:javascript src="changeRating.js"/>--}%
 <asset:javascript src="editPost.js"/>
+<asset:javascript src="changeRatingPlugin.js"/>
 <g:render template="/usernew2/forgotPasswordModal"/>
 </body>
 </html>

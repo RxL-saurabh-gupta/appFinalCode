@@ -218,5 +218,5 @@ boolean createTopic(params,session,flash){
         List l=Topic?.findAllByVisibility("PUBLIC")
         return l
     }
-
+    
 }
